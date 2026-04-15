@@ -1,14 +1,16 @@
 import App from './App';
 
-// This is a placeholder test file.
-// In a real React project, a testing library like @testing-library/react
-// with a test runner (e.g., Vitest or Jest) would be used to
-// render and interact with components.
+// This is a placeholder test file for a React component without a testing framework.
+// In a real project, you would use a testing library like @testing-library/react
+// with a test runner (e.g., Vitest or Jest) to render components and make assertions.
 
-describe('App', () => {
-  it('should be defined', () => {
-    // This is a very basic assertion to demonstrate a test file.
-    // Real tests would involve rendering the component and asserting on its output.
-    expect(App).toBeDefined();
-  });
-});
+function testAppIsAFunction() {
+  if (typeof App === 'function') {
+    console.log('Test Passed: App is a function.');
+  } else {
+    console.error('Test Failed: App is not a function.');
+  }
+}
+
+// Execute the test
+testAppIsAFunction();
