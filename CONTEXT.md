@@ -5,13 +5,19 @@ This project, named `ai-agent`, is intended to develop or host an Artificial Int
 
 ### Tech Stack and Architecture
 
-Based on the current minimal file structure, the specific tech stack (programming languages, frameworks, libraries) and architectural patterns (e.g., monolithic, microservices, client-server) *cannot be determined*. These will be established and become evident as development progresses and more files (e.g., `package.json`, `pyproject.toml`, `Dockerfile`, source code) are added.
+The primary programming language is **Python**, utilizing **FastAPI** for building the API layer. Dependencies are managed using `pyproject.toml`. The project is set up for containerization using **Docker**. Currently, the architecture follows a single-service pattern, acting as a backend for AI agent functionalities.
 
 ### Key Directories and Their Purpose
 
-As of now, the project structure is not yet defined. Only the `README.md` file exists. Key directories for source code (`src`, `app`), configuration (`config`), tests (`tests`), or documentation (`docs`) are expected to be created as the project evolves.
+The project structure has been initialized with the following key directories and files:
+*   `app/`: Contains the main application source code.
+*   `tests/`: Houses unit and integration tests.
+*   `pyproject.toml`: Manages project metadata and dependencies.
+*   `Dockerfile`: Defines the containerization setup for the application.
 
 ### Important Conventions or Patterns
 
-With only a `README.md` file, no specific coding conventions, design patterns, or project-specific workflows have been established or can be inferred. These will be documented or become apparent as source code and configuration files are introduced.
+*   **Coding Style**: Adherence to **PEP 8** standards for Python code.
+*   **Data Models**: **Pydantic** is used for data validation and serialization, particularly for API request/response bodies.
+*   **Testing**: **Pytest** is the chosen framework for writing and running tests.
 ```
