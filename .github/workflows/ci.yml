@@ -1,0 +1,90 @@
+# This project, `ai-agent`, is a framework or application for building, deploying, and managing intelligent AI agents.
+# These agents are designed to autonomously or semi-autonomously perform tasks, interact with various tools, and maintain context (memory),
+# often leveraging large language models (LLMs) for reasoning, planning, and execution.
+#
+# This sprint implemented: SCRUM-530
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' # Assuming a recent stable Python version for the project
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest # Assuming pytest is used for Python project testing
+
+  deploy:
+    name: Deploy to EC2
+    needs: ci
+    runs-on: ubuntu-latest
+    # Deploy only on push to main branch, and only after the CI job passes
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Source nvm so node/npm/pnpm are available in the non-interactive SSH shell
+            export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+            # Change to the deploy directory
+            cd ${{ secrets.EC2_DEPLOY_PATH }}
+
+            # Fetch and hard-reset to remote so local changes (e.g. package-lock.json) never block the deploy
+            git fetch origin main
+            git reset --hard origin/main
+            # .env is gitignored so it is never touched by reset --hard
+
+            # Sync new env vars from .env.sample into .env (append missing keys only, never overwrite)
+            if [ -f .env.sample ]; then
+              touch .env
+              while IFS= read -r line; do
+                # skip blank lines and comments
+                [[ -z "$line" || "$line" == \#* ]] && continue
+                key=$(echo "$line" | cut -d= -f1)
+                # only append if key not already present in .env
+                if ! grep -q "^${key}=" .env 2>/dev/null; then
+                  echo "$line" >> .env
+                  echo "⚠️  New env var added (set real value): ${key}"
+                fi
+              done < .env.sample
+            fi
+
+            # Install Python dependencies
+            pip install -r requirements.txt
+
+            # No explicit build step required for this Python/FastAPI project
+
+            # Restart the app with PM2 using zero-downtime reload
+            # The || handles the first-ever start when no PM2 process named "app" exists yet
+            # Assuming FastAPI entrypoint is `src/main.py` with an `app` instance.
+            pm2 reload app --update-env || pm2 start "uvicorn src.main:app --host 0.0.0.0 --port 8000" --name app
+
+            # Save PM2 process list to preserve it across reboots
+            pm2 save
