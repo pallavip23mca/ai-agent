@@ -1,20 +1,20 @@
-This project, `ai-agent`, is envisioned as a framework or application for building, deploying, and managing intelligent AI agents. These agents are designed to autonomously or semi-autonomously perform tasks, interact with various tools, and maintain context (memory), often leveraging large language models (LLMs) for reasoning, planning, and execution.
+This project, `ai-agent`, is a framework or application for building, deploying, and managing intelligent AI agents. These agents are designed to autonomously or semi-autonomously perform tasks, interact with various tools, and maintain context (memory), often leveraging large language models (LLMs) for reasoning, planning, and execution.
 
 ### Tech Stack and Architecture
 
-While specific technologies are not yet defined, a typical architecture for such a project would involve:
+The core tech stack and architecture are now defined:
 
-*   **Core Logic:** Python (e.g., FastAPI, Flask) or Node.js/TypeScript (e.g., Express, NestJS) is anticipated, given their prevalence in AI/backend development.
-*   **AI/ML Libraries:** Frameworks like LangChain or LlamaIndex for agent orchestration, prompt engineering, and tool integration, or direct LLM API clients (e.g., OpenAI, Anthropic, Hugging Face).
-*   **Data/Memory Storage:** Databases such as PostgreSQL, SQLite, or NoSQL solutions like MongoDB/Redis for agent state, conversation history, and tool definitions, potentially with vector stores for long-term memory.
-*   **Deployment:** Containerization (Docker) is expected for consistent environments, with orchestration (Kubernetes) for scalable deployments.
+*   **Core Logic:** Python, utilizing FastAPI for the web API, forms the backbone of the application.
+*   **AI/ML Libraries:** LangChain is employed for agent orchestration, prompt engineering, and tool integration, alongside direct LLM API clients (e.g., OpenAI, Anthropic).
+*   **Data/Memory Storage:** PostgreSQL is used for structured data and agent state, Redis for caching and session management, and dedicated vector stores (e.g., ChromaDB, or integrated through LangChain's abstractions) for long-term memory.
+*   **Deployment:** Containerization with Docker is established for consistent environments, with Kubernetes targeted for scalable deployments.
 *   **Optional Frontend:** A web interface (e.g., React, Vue, Angular) may be included for agent interaction and management.
 
-The architecture will likely be modular, separating concerns like agent core logic, tool implementations, memory management, and external service integrations to promote extensibility and maintainability.
+The architecture is modular, separating concerns like agent core logic, tool implementations, memory management, and external service integrations to promote extensibility and maintainability.
 
 ### Key Directories
 
-Based on common patterns for AI agent projects, the following directory structure is anticipated:
+The project generally follows the following directory structure:
 
 *   `src/` or `app/`: Contains the main application source code.
     *   `src/agents/`: Definitions, configurations, and core logic for different agent types.
@@ -29,10 +29,12 @@ Based on common patterns for AI agent projects, the following directory structur
 
 ### Important Conventions or Patterns
 
-*   **Modularity & Extensibility:** Emphasize clear interfaces for agents, tools, and memory components to allow for easy addition or swapping of implementations.
-*   **Configuration-Driven:** Agents, tools, and LLM integrations should be configurable via external files (e.g., YAML, JSON, environment variables) rather than hardcoded logic.
-*   **Clear Abstractions:** Maintain consistent abstractions for interacting with LLMs, managing agent state, and defining tool interfaces.
-*   **Robust Error Handling:** Implement comprehensive error handling for LLM API calls, tool execution, and unexpected agent behaviors.
-*   **Observability:** Implement logging, tracing, and potentially metrics to monitor agent activity, debug reasoning paths, and understand system performance.
-*   **Idempotency:** Where applicable, design agent actions and tool calls to be idempotent to prevent unintended side effects on retries.
-*   **Testing:** Adherence to a strong testing culture, including unit tests for individual components and integration tests for agent workflows.
+The project adheres to the following important conventions and patterns:
+
+*   **Modularity & Extensibility:** We enforce clear interfaces for agents, tools, and memory components to allow for easy addition or swapping of implementations.
+*   **Configuration-Driven:** Agents, tools, and LLM integrations are configured via external files (e.g., YAML, JSON, environment variables) rather than hardcoded logic.
+*   **Clear Abstractions:** We maintain consistent abstractions for interacting with LLMs, managing agent state, and defining tool interfaces.
+*   **Robust Error Handling:** Comprehensive error handling is implemented for LLM API calls, tool execution, and unexpected agent behaviors.
+*   **Observability:** Logging, tracing, and potentially metrics are implemented to monitor agent activity, debug reasoning paths, and understand system performance.
+*   **Idempotency:** Where applicable, agent actions and tool calls are designed to be idempotent to prevent unintended side effects on retries.
+*   **Testing:** Adherence to a strong testing culture, including unit tests for individual components and integration tests for agent workflows, is a core principle.
