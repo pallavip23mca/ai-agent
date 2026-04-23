@@ -1,16 +1,17 @@
+```markdown
 # Project Context: ai-agent
 
 This document provides an overview of the `ai-agent` project, detailing its purpose, technical architecture, key directory structure, and established conventions.
 
 ## 1. What this project does
 
-The `ai-agent` project aims to develop a sophisticated artificial intelligence agent capable of understanding, processing, and executing tasks, potentially with a degree of autonomy. It likely involves:
+The `ai-agent` project aims to develop a sophisticated artificial intelligence agent capable of understanding, processing, and executing tasks, potentially with a degree of autonomy. It involves:
 *   **Task Execution**: Performing specific actions or workflows based on given objectives.
 *   **Tool Integration**: Interacting with external APIs, services, or internal systems to gather information or achieve goals.
 *   **Reasoning & Planning**: Utilizing AI models (e.g., Large Language Models) for decision-making, task decomposition, and strategy formulation.
 *   **Memory & State Management**: Maintaining context, learning from past interactions, and managing conversational or operational state.
 
-The agent's specific domain or primary function will be further elaborated in the main `README.md` or dedicated documentation.
+Specifically, the agent is being developed to function as an intelligent **internal data analysis assistant**, capable of querying internal databases, generating reports, and providing insights based on user prompts.
 
 ## 2. Tech Stack and Architecture
 
@@ -18,13 +19,13 @@ Given the nature of an AI agent, the project typically leverages the following t
 
 *   **Primary Language**: Python (standard for AI/ML development).
 *   **Core AI Frameworks**:
-    *   **Agent Orchestration**: Libraries like LangChain, LlamaIndex, AutoGen, or a custom framework for managing agent logic, tools, and memory.
+    *   **Agent Orchestration**: LangChain for managing agent logic, tools, and memory.
     *   **Machine Learning**: Potentially PyTorch, TensorFlow, Hugging Face Transformers for specific model inference, fine-tuning, or embeddings.
-*   **Web Framework (if applicable)**: FastAPI or Flask for building RESTful APIs to expose agent functionalities, or a web UI.
+*   **Web Framework (if applicable)**: FastAPI for building RESTful APIs to expose agent functionalities, or a web UI.
 *   **Dependency Management**: Poetry or `pip` with `requirements.txt` / `Pipfile`.
 *   **Containerization**: Docker for consistent development and deployment environments.
 *   **Cloud Infrastructure**: (Potential) Deployment on AWS, GCP, Azure using services like Kubernetes, serverless functions (e.g., AWS Lambda), or managed VMs.
-*   **Memory Store**: (e.g., Redis, specialized vector databases like Pinecone, Chroma, Weaviate, or traditional databases like PostgreSQL) for persistent context and learned information.
+*   **Memory Store**: ChromaDB (for vector embeddings and long-term memory) and Redis (for short-term conversational state/cache).
 
 **Architecture**: The system likely follows a modular or service-oriented architecture:
 *   **Agent Core**: Encapsulates the primary reasoning, planning, and task execution logic.
@@ -58,3 +59,4 @@ Given the nature of an AI agent, the project typically leverages the following t
 *   **Testing**: Comprehensive test suite covering critical agent functionalities, tool integrations, and API endpoints, including mock external services where appropriate.
 *   **Tool-Use Pattern**: Tools are typically defined with clear schemas and descriptions, allowing the agent to dynamically select and invoke them based on current goals.
 *   **Prompt Engineering**: Prompts for large language models are carefully crafted, versioned (if necessary), and externalized from core logic to allow for easy iteration and optimization.
+```
