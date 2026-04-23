@@ -1,0 +1,128 @@
+```yaml
+# This workflow sets up Continuous Integration (CI) and Continuous Deployment (CD)
+# for the ai-agent project.
+#
+# Project Description:
+# The `ai-agent` project implements an intelligent, autonomous or semi-autonomous agent.
+# It leverages Large Language Models (LLMs) (specifically OpenAI), the LangChain framework
+# for agent behavior, Redis for short-term memory, and ChromaDB as a vector store.
+# The core language is predominantly Python, and it exposes a REST API via FastAPI.
+#
+# Implemented in this sprint: SCRUM-544
+
+name: CI/CD ai-agent
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci:
+    name: CI Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x' # Use a recent stable Python version
+
+      - name: Create and activate virtual environment
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+
+      - name: Install dependencies
+        run: |
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          source .venv/bin/activate
+          # Assuming pytest is used for testing as it's common for Python projects
+          pip install pytest # Ensure pytest is installed
+          pytest tests/ # Assuming tests are located in the 'tests/' directory
+
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: ci
+    # Deploy only on push to main branch after the CI job passes successfully
+    if: github.ref == 'refs/heads/main' && needs.ci.result == 'success'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy with SSH to EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # a. Source nvm so node/npm/pnpm are available (PM2 is Node.js-based)
+            export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+            # b. cd to the deploy directory
+            cd ${{ secrets.EC2_DEPLOY_PATH }}
+
+            # c. Fetch and hard-reset to origin/main
+            #    This ensures the deployed code is exactly what's on the main branch,
+            #    discarding any local changes on the server (e.g., package-lock.json).
+            #    .env is gitignored and will not be touched by reset --hard.
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Set up Python virtual environment
+            # Check if virtual environment exists, create if not
+            if [ ! -d ".venv" ]; then
+                echo "Creating virtual environment..."
+                python3 -m venv .venv
+            fi
+            # Activate the virtual environment
+            source .venv/bin/activate
+            pip install --upgrade pip
+
+            # d. Sync new env vars from .env.sample into .env
+            #    Appends missing keys only, never overwrites existing values in .env.
+            if [ -f .env.sample ]; then
+              touch .env
+              while IFS= read -r line; do
+                # skip blank lines and comments
+                [[ -z "$line" || "$line" == \#* ]] && continue
+                key=$(echo "$line" | cut -d= -f1)
+                # only append if key not already present in .env
+                if ! grep -q "^${key}=" .env 2>/dev/null; then
+                  echo "$line" >> .env
+                  echo "⚠️  New env var added (set real value): ${key}"
+                fi
+              done < .env.sample
+            fi
+
+            # e. Install dependencies
+            pip install -r requirements.txt
+
+            # f. Run build step (skipped for this predominantly Python/FastAPI project)
+            #    A dedicated 'build' step like 'npm run build' is not typical for pure Python backends.
+
+            # g. Restart the app with PM2 using zero-downtime reload
+            #    If a PM2 process named "app" already exists, it reloads it.
+            #    If not (first-ever deployment), it starts a new process.
+            #    Assuming 'src/api/main.py' is the application's entrypoint, and it is directly
+            #    executable with Python to start the FastAPI server (e.g., using uvicorn.run()).
+            pm2 reload app --update-env || pm2 start src/api/main.py --name app --interpreter python
+
+            # h. pm2 save
+            #    Saves the current PM2 process list to be restored on server reboot.
+            pm2 save
+```
